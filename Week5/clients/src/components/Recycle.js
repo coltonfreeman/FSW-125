@@ -1,36 +1,32 @@
 import { useState } from 'react';
-import AddItemForm from './AddItemForm';
+import AddItemFormHandler from "./AddItemFormHandler";
+import { v4 as uuidv4 } from 'uuid';
 
+function RecycledItem({name, editItem, description, deleteItem, _id }) {
 
-function Recycle({deleteItem, editItem, name, description, _id}) {
     const [editToggle, setEditToggle] = useState(false);
+    
     return (
         <div className="item">
             { !editToggle ? 
                 <>
                     <h1>Name: {name}</h1>
                     <p>Description: {description}</p>
-                    <button 
-                        onClick={() => deleteItem()} 
-                        className='delete-btn'>
-                        Delete
-                    </button>
-                    <button 
-                        onClick={() => setEditToggle(prevToggle => !prevToggle)}
-                        className="edit-btn">
-                        Edit
-                    </button>
+                    <button onClick={() => deleteItem(_id)} className='delete-btn'>Delete</button>
+                    <button onClick={() => setEditToggle(prevToggle => !prevToggle)}
+                    className="edit-btn">Edit</button>
                 </>
                 :
                 <>
-                    <AddItemForm
-                        name={name}
-                        description={description}
-                        _id={_id}   
-                        btnText='Submit Edit'
-                        submit={editItem} />
-                    <button
-                        onClick={() => setEditToggle(prevToggle => !prevToggle)}>
+                    <AddItemFormHandler
+                    name={name}
+                    description={description}
+                    _id = {_id}
+                    key={uuidv4()}
+                    btnText='Edit Recycle'
+                    submit={editItem} />
+
+                    <button onClick={() => setEditToggle(prevToggle => !prevToggle)}>
                         Close
                     </button>
                     
@@ -39,4 +35,5 @@ function Recycle({deleteItem, editItem, name, description, _id}) {
         </div>
     );
 }
-export default Recycle;
+
+export default RecycledItem;

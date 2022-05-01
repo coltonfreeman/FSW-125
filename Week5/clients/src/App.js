@@ -1,37 +1,35 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
 import './App.css';
-import Recycle from './components/Recycle';
-import AddItemForm from './components/AddItemForm';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import RecycledItem from './RecycledItem';
+import AddItemFormHandler from './AddItemFormHandler';
 
 function App() {
-  const [recycled, setRecycledItems] = useState([]);
+  const [recycledItems, setRecycledItems] = useState([]);
 
   const getItems = () => {
-    axios.get('/recycled')
+    axios.get('/itemsIntake')
       .then(res => setRecycledItems(res.data))
-      .catch(err => console.log(err))
-  };
-
-  const addItems = (newItem) => {
-    axios.post('/recycled', newItem)
-      .then(res => {
-        setRecycledItems(prevRecycled => [...prevRecycled, res.data])
-      })
-      .catch(err => console.log(err))
-  };
-  const deleteItem = (recycledId) => {
-    axios.delete(`/recycled/${recycledId}`)
-      .then(_res => {
-        setRecycledItems(prevRecycled => prevRecycled.filter(recycled => recycled._id !== recycledId))
-      })
       .catch(err => console.log(err))
   }
 
-  const editItem = (updates, recycledId) => {
-    axios.put(`/recycled/${recycledId}`, updates)
+  const addItems = (newItem) => {
+    axios.post('/itemsIntake', newItem)
+      .then(res => setRecycledItems(prevItems => [...prevItems, res.data]))
+      .catch(err => console.log(err))
+  }
+
+  const deleteItem = (itemId) => {
+    axios.delete(`/itemsIntake/${itemId}`)
+      .then(setRecycledItems(prevItems => prevItems.filter(item => item._id !== itemId)))
+      .catch(err => console.log(err))
+  }
+
+  const editItem = (updates, itemId) => {
+    axios.put(`/itemsIntake/${itemId}`, updates)
       .then(res => {
-        setRecycledItems(prevRecycled => prevRecycled.map(recycled => recycled._id !== recycledId ? recycled : res.data))
+        setRecycledItems(prevItems => prevItems.map(item => item._id !== itemId ? item : res.data))
+        getItems();
       })
       .catch(err => console.log(err))
   }
@@ -40,19 +38,12 @@ function App() {
     getItems();
   }, []);
 
-  const recycledList = recycled.map(recycle => 
-  <Recycle
-  {...recycle} 
-  deleteItem={deleteItem} 
-  editItem={editItem} 
-  key={recycle.name} />)
+  const recycledList = recycledItems.map(item => <RecycledItem {...item} deleteItem={deleteItem} editItem={editItem} key={item.name} />)
 
   return (
-    <div className='recycled-container'>
-      <AddItemForm 
-      btnText='Recycle Item' 
-      submit={addItems}/>
-    {recycledList}
+    <div className='recycledItems'>
+      <AddItemFormHandler key ='formHandler' btnText='Recycle Item' submit={addItems}/>
+      {recycledList}
     </div>
   );
 }
